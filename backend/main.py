@@ -1,3 +1,6 @@
+from dotenv import load_dotenv
+load_dotenv()
+
 from fastapi import FastAPI
 import fastapi, File, Form, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
