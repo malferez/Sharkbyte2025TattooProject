@@ -133,7 +133,7 @@ const TattooFeedback: React.FC<Props> = ({
       <textarea
         value={feedbackText}
         onChange={(e) => setFeedbackText(e.target.value)}
-        placeholder="e.g. TESTING TO MAKE SURE THIS GOES THROUGH 1Make the tattoo smaller and move it to the forearm"
+        placeholder="e.g. Make the tattoo smaller and move it to the forearm"
         rows={3}
         required
       />
