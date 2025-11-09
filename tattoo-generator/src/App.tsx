@@ -5,6 +5,7 @@ import './styles/tattoo.css'
 import ImageSlider from './components/ImageSlider'
 import ToggleSwitch from './components/ToggleSwitch'
 import SessionGallery from './components/Gallery'
+import ReferenceUploader from './components/ReferenceUploader'
 
 // Result shape we expect from the server after generating the tattoo
 // - `image_base64`: a base64-encoded PNG image we can embed in an <img>
@@ -31,6 +32,9 @@ function App() {
   const [photoFile, setPhotoFile] = useState<File | null>(null)
   // A short-lived object URL to preview the uploaded photo before sending it
   const [photoPreview, setPhotoPreview] = useState<string | null>(null)
+  // Reference image (optional): file + preview URL
+  const [referenceFile, setReferenceFile] = useState<File | null>(null)
+  const [referencePreview, setReferencePreview] = useState<string | null>(null)
 
   // Text inputs mirroring the original HTML form fields
   const [styleText, setStyleText] = useState('')
@@ -93,6 +97,12 @@ const API_URL = isLocal
     }
   }
 
+  // Reference uploader change handler (controlled from child)
+  const onReferenceChange = (file: File | null, preview: string | null) => {
+    setReferenceFile(file)
+    setReferencePreview(preview)
+  }
+
   /**
    * handleSubmit
    * - Prevents the normal form submission
@@ -115,6 +125,7 @@ const API_URL = isLocal
     // Build FormData matching the server form names used in your Flask app
     const form = new FormData()
     form.append('photo', photoFile)
+  if (referenceFile) form.append('reference', referenceFile)
     form.append('style', styleText)
     form.append('theme', themeText)
     form.append('color_mode', colorMode)
@@ -174,6 +185,8 @@ const API_URL = isLocal
   const resetForm = () => {
     setPhotoFile(null)
     setPhotoPreview(null)
+    setReferenceFile(null)
+    setReferencePreview(null)
     setStyleText('')
     setThemeText('')
     setColorMode('')
@@ -367,7 +380,7 @@ const API_URL = isLocal
             value={styleText}
             onChange={(e) => setStyleText(e.target.value)}
             placeholder="e.g. tribal, watercolor"
-            required
+            required={!referenceFile}
           />
         </div>
 
@@ -380,7 +393,7 @@ const API_URL = isLocal
             value={themeText}
             onChange={(e) => setThemeText(e.target.value)}
             placeholder="e.g. phoenix, floral"
-            required
+            required={!referenceFile}
           />
         </div>
 
@@ -393,7 +406,7 @@ const API_URL = isLocal
             value={colorMode}
             onChange={(e) => setColorMode(e.target.value)}
             placeholder="e.g. black-and-grey, full color"
-            required
+            required={!referenceFile}
           />
         </div>
 
@@ -406,11 +419,15 @@ const API_URL = isLocal
             value={physicalAttributes}
             onChange={(e) => setPhysicalAttributes(e.target.value)}
             placeholder="e.g. forearm, shoulder"
-            required
+            required={!referenceFile}
           />
         </div>
 
-        {/* Primary action button — disabled while a request is in flight */}
+        {/* Reference uploader: small module that lets user attach a reference image
+            used as design inspiration. It renders a preview only when present. */}
+        <ReferenceUploader referenceFile={referenceFile} referencePreview={referencePreview} onChange={onReferenceChange} />
+
+        {/* Primary action button — disabled while a request is in a flight */}
         <button type="submit" className="generate-btn" disabled={loading}>
           {loading ? 'Generating...' : '🎨 Generate Tattoo'}
         </button>
